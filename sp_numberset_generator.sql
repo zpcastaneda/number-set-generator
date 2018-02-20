@@ -6,8 +6,14 @@
     - Places the output inside an outgoing variable
     
     Sample run
+    DROP TEMPORARY TABLE IF EXISTS `temp_result`;
+    CREATE TEMPORARY TABLE `temp_result` (result VARCHAR(50));
+    
     CALL sp_numberset_generator(6, 58, @lotto_result);
-	SELECT @lotto_result;
+	INSERT INTO `temp_result` (RESULT)
+    SELECT @lotto_result;
+    
+    SELECT * FROM `temp_result`;
 */
 DROP PROCEDURE IF EXISTS `sp_numberset_generator`;
 DELIMITER $$
