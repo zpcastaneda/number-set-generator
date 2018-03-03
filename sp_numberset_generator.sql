@@ -35,7 +35,7 @@ CREATE PROCEDURE `sp_numberset_generator` (
     CREATE TEMPORARY TABLE `temp_number` (`value` TINYINT(2) ZEROFILL);
 -- output container
 	DROP TEMPORARY TABLE IF EXISTS `temp_result`;
-    CREATE TEMPORARY TABLE `temp_result` (result VARCHAR(50));
+    CREATE TEMPORARY TABLE `temp_result` (result VARCHAR(100));
 /*
 	Loop Value Generator
 */
