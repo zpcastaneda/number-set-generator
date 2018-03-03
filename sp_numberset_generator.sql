@@ -1,22 +1,19 @@
 /*
 	This is a simple randomizer that complies with these points
-    - Number of Digits
-    - Digit limit from 1 until given limit
-    - Unique digit per set
-    - Places the output inside an outgoing variable
-    - Given number of sets
-    - Variable for starting number
+    - Given number of result set row(s)
+    - A count of number(s) inside a set
+    - Parametized upper and lower limit range e.g. 1-10, 15-35
+    - Take note of this (numbers inside a set) >= (Upper number limit) - (Lower number limit) 
+    ** CALL sp_numberset_generator(<a>, <b>, <c>, <d>);
     
     For example, given is
 	- 10 sets <a>
 	- 6 numbers per set <b>
-	- unique numbers per set
 	- Numbers will start at 50 <c>
     - Until number 58 <d>
-    ** CALL sp_numberset_generator(<a>, <b>, <c>, <d>);
     
     Sample run @ MySQL 5.7    
-    CALL sp_numberset_generator(5, 6, 50, 58);
+    CALL sp_numberset_generator(5, 6, 55, 58);
 */
 DROP PROCEDURE IF EXISTS `sp_numberset_generator`;
 DELIMITER $$
