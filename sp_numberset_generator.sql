@@ -5,27 +5,31 @@
     - Unique digit per set
     - Places the output inside an outgoing variable
     - Given number of sets
+    - Variable for starting number
     
     For example, given is
 	- 10 sets <a>
 	- 6 numbers per set <b>
 	- unique numbers per set
-	- from numbers 1 - 58 <c>
-    ** CALL sp_numberset_generator(<a>, <b>, <c>);
+	- Numbers will start at 50 <c>
+    - Until number 58 <d>
+    ** CALL sp_numberset_generator(<a>, <b>, <c>, <d>);
     
     Sample run @ MySQL 5.7    
-    CALL sp_numberset_generator(10, 6, 58);
+    CALL sp_numberset_generator(5, 6, 50, 58);
 */
 DROP PROCEDURE IF EXISTS `sp_numberset_generator`;
 DELIMITER $$
 CREATE PROCEDURE `sp_numberset_generator` (
 	IN set_count TINYINT(2),
     IN digit_count TINYINT(1),
+    IN digit_start TINYINT(2),
     IN digit_limit TINYINT(2)
 ) BEGIN
 	SET @set_count = `set_count`;
 	SET @digit_count = `digit_count`;
-    SET @digit_limit = `digit_limit`;    
+    SET @digit_start = `digit_start`;
+    SET @digit_limit = `digit_limit`;
 /*
 	Container
 */
@@ -52,7 +56,10 @@ CREATE PROCEDURE `sp_numberset_generator` (
 			-- this part of the loop checks and creates the unique number
 			loop_checker: REPEAT
 				-- generate value for the instance
-				SET @input = (SELECT CEIL(RAND() * (@digit_limit)));
+				SET @input = (
+					-- convert the decimat output of RAND() into a whole number
+					SELECT FLOOR(RAND() * (@digit_limit - @digit_start + 1) + @digit_start)
+				);
 				-- check if input value already exists in container
 				SELECT COUNT(*) INTO @checker_count FROM `temp_number` WHERE value = @input;
 			UNTIL @checker_count = 0    
