@@ -7,5 +7,8 @@ This is a simple randomizer that complies with these points
 - Parametized upper and lower limit range e.g. 1-10, 15-35
 - Take note of this (numbers inside a set) >= (Upper number limit) - (Lower number limit)
 
+2018-09-12
+- Result set sorted ascending
+
 @zpcastaneda
 @sirzymon
