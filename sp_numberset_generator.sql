@@ -1,27 +1,27 @@
 /*
-This is a simple randomizer that complies with these points
-- Given number of result set row(s)
-- A count of number(s) inside a set
-- Parametized upper and lower limit range e.g. 1-10, 15-35
-- Take note of this (numbers inside a set) >= (Upper number limit) - (Lower number limit) 
-** CALL sp_numberset_generator(<a>, <b>, <c>, <d>);
+    This is a simple randomizer that complies with these points
+    - Given number of result set row(s)
+    - A count of number(s) inside a set
+    - Parametized upper and lower limit range e.g. 1-10, 15-35
+    - Take note of this (numbers inside a set) >= (Upper number limit) - (Lower number limit) 
+    ** CALL sp_numberset_generator(<a>, <b>, <c>, <d>);
 
-For example, given is
-- 10 sets <a>
-- 6 numbers per set <b>
-- Numbers will start at 50 <c>
-- Until number 58 <d>
+    For example, given is
+    - 10 sets <a>
+    - 6 numbers per set <b>
+    - Numbers will start at 50 <c>
+    - Until number 58 <d>
 
-Sample run @ MySQL 5.7    
-CALL sp_numberset_generator(3, 6, 1, 58);
+    Sample run @ MySQL 5.7    
+    CALL sp_numberset_generator(3, 6, 1, 58);
 */
 DROP PROCEDURE IF EXISTS `sp_numberset_generator`;
 DELIMITER $$
 CREATE PROCEDURE `sp_numberset_generator` (
-IN set_count TINYINT(2),
-IN digit_count TINYINT(1),
-IN digit_start TINYINT(2),
-IN digit_limit TINYINT(2)
+    IN set_count TINYINT(2),
+    IN digit_count TINYINT(1),
+    IN digit_start TINYINT(2),
+    IN digit_limit TINYINT(2)
 ) BEGIN
 SET @set_count = `set_count`;
 SET @digit_count = `digit_count`;
@@ -52,11 +52,8 @@ loop_set: REPEAT
         SET @checker_count = 0;
         -- this part of the loop checks and creates the unique number
         loop_checker: REPEAT
-            -- generate value for the instance
-            SET @input = (
-                -- convert the decimat output of RAND() into a whole number
-                SELECT FLOOR(RAND() * (@digit_limit - @digit_start + 1) + @digit_start)
-            );
+            -- generate value for the instance, convert the decimat output of RAND() into a whole number
+            SET @input = (SELECT FLOOR(RAND() * (@digit_limit - @digit_start + 1) + @digit_start));
             -- check if input value already exists in container
             SELECT COUNT(*) INTO @checker_count FROM `temp_number` WHERE value = @input;
         UNTIL @checker_count = 0    
