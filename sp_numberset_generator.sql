@@ -13,7 +13,7 @@
     - Until number 58 <d>
 
     Sample run @ MySQL 5.7    
-    CALL sp_numberset_generator(3, 6, 1, 58);
+    CALL sp_numberset_generator(8, 6, 1, 58);
 */
 DROP PROCEDURE IF EXISTS `sp_numberset_generator`;
 DELIMITER $$
@@ -67,7 +67,7 @@ loop_set: REPEAT
     END REPEAT loop_generator;
     -- output result
     INSERT INTO `temp_result` (result)
-    SELECT GROUP_CONCAT(value ORDER BY value ASC) `result` 
+    SELECT GROUP_CONCAT(value ORDER BY value ASC SEPARATOR ' | ') `result` 
     FROM `temp_number`;
     -- cleanup temp container
     TRUNCATE TABLE `temp_number`;
