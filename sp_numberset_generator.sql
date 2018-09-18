@@ -53,9 +53,19 @@ loop_set: REPEAT
         -- this part of the loop checks and creates the unique number
         loop_checker: REPEAT
             -- generate value for the instance, convert the decimat output of RAND() into a whole number
-            SET @input = (SELECT FLOOR(RAND() * (@digit_limit - @digit_start + 1) + @digit_start));
+            SET @input = (SELECT FLOOR(RAND() * (@digit_limit - @digit_start + 1) + @digit_start));                        
             -- check if input value already exists in container
             SELECT COUNT(*) INTO @checker_count FROM `temp_number` WHERE value = @input;
+            IF @checker_count = 0 AND (
+                -- even number for an even roll
+                (@counter % 2 = 0 AND @input % 2 = 0) 
+                -- odd number for an odd roll
+                OR (@counter % 2 != 0 AND @input % 2 != 0)
+            ) THEN
+                SET @checker_count = 0;
+            ELSE
+                SET @checker_count = 1;
+            END IF;
         UNTIL @checker_count = 0    
         END REPEAT loop_checker;
         -- insert into container
