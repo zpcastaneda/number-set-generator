@@ -18,7 +18,7 @@
 DROP PROCEDURE IF EXISTS `sp_numberset_generator`;
 DELIMITER $$
 CREATE PROCEDURE `sp_numberset_generator` (
-    IN set_count TINYINT(2),
+    IN set_count BIGINT(20),
     IN digit_count TINYINT(1),
     IN digit_start TINYINT(2),
     IN digit_limit TINYINT(2)
@@ -46,14 +46,16 @@ loop_set: REPEAT
 -- actual loop    
     SET @counter = 0;
     SET @input = 0;
-
+/*
+    INPUT PROCESSING
+*/
     loop_generator: REPEAT
         -- re-initialize value generator counter
         SET @checker_count = 0;
         -- this part of the loop checks and creates the unique number
         loop_checker: REPEAT
             -- generate value for the instance, convert the decimat output of RAND() into a whole number
-            SET @input = (SELECT FLOOR(RAND() * (@digit_limit - @digit_start + 1) + @digit_start));                        
+            SET @input = (FLOOR(RAND() * (@digit_limit - @digit_start + 1) + @digit_start));
             -- check if input value already exists in container
             SELECT COUNT(*) INTO @checker_count FROM `temp_number` WHERE value = @input;
             IF @checker_count = 0 AND (
@@ -75,18 +77,33 @@ loop_set: REPEAT
         SET @counter = @counter + 1;
     UNTIL @counter >= @digit_count
     END REPEAT loop_generator;
-    -- output result
-    INSERT INTO `temp_result` (result)
-    SELECT GROUP_CONCAT(value ORDER BY value ASC SEPARATOR ' | ') `result` 
+/*
+    OUTPUT PROCESSING
+*/
+    -- place value into a container
+    SELECT GROUP_CONCAT(value ORDER BY value ASC SEPARATOR ' - ') `result` 
+    INTO @output
     FROM `temp_number`;
+    -- check if set is existing in the collection
+    SELECT COUNT(*) INTO @occurence
+    FROM `temp_result` WHERE result = @output;
+    -- decide if set will be recorded
+    IF @occurence = 0 THEN
+        -- output result
+        INSERT INTO `temp_result` (result)
+        VALUES (@output);
+        -- increment the counter
+        SET @set_counter = @set_counter + 1;
+    END IF;
+/*
+    CLEANUP SET CONTAINER FOR EACH ROUND
+*/
     -- cleanup temp container
-    TRUNCATE TABLE `temp_number`;
-    -- increment the counter
-    SET @set_counter = @set_counter + 1;
+    TRUNCATE TABLE `temp_number`;    
 UNTIL @set_counter >= @set_count
 END REPEAT loop_set;
 /*
-Output and Cleanup
+    FINAL OUTPUT / CLEANUP
 */
 -- output
 SELECT `result` FROM `temp_result`;
