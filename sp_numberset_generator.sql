@@ -23,12 +23,16 @@ CREATE PROCEDURE `sp_numberset_generator` (
     IN digit_start TINYINT(2),
     IN digit_limit TINYINT(2)
 ) BEGIN
+/*
+    PARAMETERS
+*/
 SET @set_count = `set_count`;
 SET @digit_count = `digit_count`;
 SET @digit_start = `digit_start`;
 SET @digit_limit = `digit_limit`;
+SET @set_counter = 0;
 /*
-Container
+    CONTAINER
 */
 -- process container
 DROP TEMPORARY TABLE IF EXISTS `temp_number`;
@@ -37,10 +41,8 @@ CREATE TEMPORARY TABLE `temp_number` (`value` TINYINT(2) ZEROFILL);
 DROP TEMPORARY TABLE IF EXISTS `temp_result`;
 CREATE TEMPORARY TABLE `temp_result` (result TEXT);
 /*
-Loop Value Generator
+    SCRIPT BODY STARTS HERE
 */
--- set variable
-SET @set_counter = 0;
 -- processing set loop
 loop_set: REPEAT
 -- actual loop    
