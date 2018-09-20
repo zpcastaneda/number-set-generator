@@ -50,6 +50,9 @@ loop_set: REPEAT
     SET @input = 0;
 /*
     INPUT PROCESSING
+    - creates unique number(s) based on @set_count value
+    - odd roll creates an odd number, even roll creates even number
+    - re-rolls a number if it exists in the set
 */
     loop_generator: REPEAT
         -- re-initialize value generator counter
@@ -59,17 +62,15 @@ loop_set: REPEAT
             -- generate value for the instance, convert the decimat output of RAND() into a whole number
             SET @input = (FLOOR(RAND() * (@digit_limit - @digit_start + 1) + @digit_start));
             -- check if input value already exists in container
-            SELECT COUNT(*) INTO @checker_count FROM `temp_number` WHERE value = @input;
-            IF @checker_count = 0 AND (
+            SET @checker_count = (SELECT COUNT(*) FROM `temp_number` WHERE value = @input);
+            CASE
                 -- even number for an even roll
-                (@counter % 2 = 0 AND @input % 2 = 0) 
+                WHEN @checker_count = 0 AND (@counter % 2 = 0 AND @input % 2 = 0) THEN SET @checker_count = 0;
                 -- odd number for an odd roll
-                OR (@counter % 2 != 0 AND @input % 2 != 0)
-            ) THEN
-                SET @checker_count = 0;
-            ELSE
-                SET @checker_count = 1;
-            END IF;
+                WHEN @checker_count = 0 AND (@counter % 2 != 0 AND @input % 2 != 0) THEN SET @checker_count = 0;
+                -- else re-roll
+                ELSE SET @checker_count = 1;
+            END CASE;
         UNTIL @checker_count = 0    
         END REPEAT loop_checker;
         -- insert into container
@@ -81,19 +82,18 @@ loop_set: REPEAT
     END REPEAT loop_generator;
 /*
     OUTPUT PROCESSING
+    - place the output set in a container
+    - check output set if it exists already
+    - decide if proceed to next set or re-roll
 */
     -- place value into a container
-    SELECT GROUP_CONCAT(value ORDER BY value ASC SEPARATOR ' - ') `result` 
-    INTO @output
-    FROM `temp_number`;
+    SET @output = (SELECT GROUP_CONCAT(value ORDER BY value ASC SEPARATOR ' - ') `result` FROM `temp_number`);
     -- check if set is existing in the collection
-    SELECT COUNT(*) INTO @occurence
-    FROM `temp_result` WHERE result = @output;
+    SET @occurence = (SELECT COUNT(*) FROM `temp_result` WHERE result = @output);
     -- decide if set will be recorded
     IF @occurence = 0 THEN
         -- output result
-        INSERT INTO `temp_result` (result)
-        VALUES (@output);
+        INSERT INTO `temp_result` (result) VALUES (@output);
         -- increment the counter
         SET @set_counter = @set_counter + 1;
     END IF;
